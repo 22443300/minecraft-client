@@ -1,0 +1,34 @@
+{
+  "schemaVersion": 1,
+  "id": "phantom",
+  "version": "${version}",
+  "name": "Phantom Client",
+  "description": "A comprehensive, high-performance Fabric utility client for Minecraft 1.21.1.",
+  "authors": [
+    "Phantom"
+  ],
+  "contact": {},
+  "license": "MIT",
+  "icon": "assets/phantom/icon.png",
+  "environment": "client",
+  "entrypoints": {
+    "client": [
+      "dev.phantom.client.PhantomClient"
+    ]
+  },
+  "mixins": [
+    "phantom.mixins.json"
+  ],
+  "depends": {
+    "fabricloader": ">=0.15.11",
+    "fabric-api": "*",
+    "minecraft": "~1.21.1",
+    "java": ">=21"
+  },
+  "suggests": {
+    "worldedit": "*",
+    "litematica": "*",
+    "xaerominimap": "*",
+    "voicechat": "*"
+  }
+}

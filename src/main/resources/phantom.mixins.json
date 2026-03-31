@@ -1,0 +1,42 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "dev.phantom.client.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": [
+    "MinecraftClientMixin",
+    "ClientPlayerEntityMixin",
+    "GameRendererMixin",
+    "WorldRendererMixin",
+    "InGameHudMixin",
+    "KeyboardMixin",
+    "MouseMixin",
+    "ClientPlayNetworkHandlerMixin",
+    "ClientConnectionMixin",
+    "LivingEntityMixin",
+    "EntityMixin",
+    "PlayerEntityMixin",
+    "AbstractClientPlayerEntityMixin",
+    "EntityRendererMixin",
+    "EntityRenderDispatcherMixin",
+    "BlockMixin",
+    "FluidBlockMixin",
+    "FrustumMixin",
+    "BackgroundRendererMixin",
+    "HandledScreenMixin",
+    "CreativeInventoryScreenMixin",
+    "ChatScreenMixin",
+    "ScreenMixin",
+    "PlayerInventoryMixin",
+    "ItemUsageContextMixin",
+    "ClientWorldMixin",
+    "ClientChunkManagerMixin",
+    "ParticleManagerMixin",
+    "BlockEntityRendererMixin",
+    "GameOptionsMixin",
+    "SoundSystemMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
