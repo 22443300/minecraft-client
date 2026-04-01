@@ -53,9 +53,6 @@ public class MacroExecutor {
             } catch (dev.phantom.client.core.macro.script.Interpreter.ScriptRuntimeException e) {
                 ChatUtil.addMessage("§cMacro runtime error in '" + macro.getName() + "': " + e.getMessage());
                 dev.phantom.client.PhantomClient.LOGGER.error("[Phantom] Macro runtime error: {}", e.getMessage());
-            } catch (InterruptedException e) {
-                Thread.currentThread().interrupt();
-                // Macro was stopped intentionally, no need to log
             } catch (Exception e) {
                 ChatUtil.addMessage("§cMacro error in '" + macro.getName() + "': " + e.getMessage());
                 dev.phantom.client.PhantomClient.LOGGER.error("[Phantom] Macro error in '{}': {}", macro.getName(), e.getMessage());
