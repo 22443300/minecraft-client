@@ -11,24 +11,22 @@ import java.util.*;
 /**
  * Phantom Client — One-Click Installer
  *
- * Everything is bundled inside this JAR:
- *   /phantom-1.0.0.jar        — the mod itself
- *   /fabric-installer.jar     — official Fabric Loader installer
- *   /fabric-api.jar           — Fabric API mod
+ * Bundled inside this JAR:
+ *   /phantom-1.0.0.jar   — the mod itself
  *
- * The ONLY external requirement is Java 17+.
- * No internet connection needed.
+ * Prerequisites (not handled here — see README):
+ *   • Fabric Loader 0.15.11 for Minecraft 1.21.1
+ *   • Fabric API 0.102.0+1.21.1
+ *
+ * The ONLY thing this installer does:
+ *   Copy phantom-1.0.0.jar into the selected .minecraft/mods folder.
  */
 public class PhantomInstaller extends JFrame {
 
-    // ── Versions ───────────────────────────────────────────────────────────
-    private static final String MC_VERSION      = "1.21.1";
-    private static final String LOADER_VERSION  = "0.15.11";
-    private static final String FABRIC_API_FILE = "fabric-api-0.102.0+1.21.1.jar";
-    private static final String MOD_FILE        = "phantom-1.0.0.jar";
-    private static final int    MIN_JAVA        = 17;
+    private static final String MC_VERSION = "1.21.1";
+    private static final String MOD_FILE   = "phantom-1.0.0.jar";
+    private static final int    MIN_JAVA   = 17;
 
-    // ── Colours ────────────────────────────────────────────────────────────
     private static final Color BG        = new Color(0x0D, 0x0D, 0x0D);
     private static final Color PANEL     = new Color(0x14, 0x14, 0x14);
     private static final Color CARD      = new Color(0x1A, 0x1A, 0x1A);
@@ -36,26 +34,20 @@ public class PhantomInstaller extends JFrame {
     private static final Color TEXT      = new Color(0xE8, 0xE8, 0xE8);
     private static final Color TEXT_DIM  = new Color(0x88, 0x88, 0x88);
     private static final Color SUCCESS   = new Color(0x4C, 0xAF, 0x50);
-    private static final Color WARN      = new Color(0xFF, 0xA5, 0x00);
     private static final Color ERROR_CLR = new Color(0xE0, 0x35, 0x35);
 
-    // ── Check status ───────────────────────────────────────────────────────
     private enum Status { OK, WILL_INSTALL, MISSING, CHECKING }
 
-    // ── UI ─────────────────────────────────────────────────────────────────
     private JTextField   mcDirField;
     private JProgressBar progressBar;
     private JTextArea    logArea;
     private JButton      installButton;
     private JLabel       statusLabel;
 
-    private final CheckRow rowJava   = new CheckRow("Java 17+",      "Checking…");
-    private final CheckRow rowMC     = new CheckRow("Minecraft",      "Checking…");
-    private final CheckRow rowFabric = new CheckRow("Fabric Loader",  "Bundled");
-    private final CheckRow rowFabApi = new CheckRow("Fabric API",     "Bundled");
-    private final CheckRow rowMod    = new CheckRow("Phantom Client", "Bundled");
+    private final CheckRow rowJava = new CheckRow("Java 17+",      "Checking…");
+    private final CheckRow rowMC   = new CheckRow("Minecraft",      "Checking…");
+    private final CheckRow rowMod  = new CheckRow("Phantom Client", "Bundled");
 
-    // ══════════════════════════════════════════════════════════════════════
     public static void main(String[] args) {
         System.setProperty("awt.useSystemAAFontSettings", "on");
         System.setProperty("swing.aatext", "true");
@@ -65,16 +57,14 @@ public class PhantomInstaller extends JFrame {
     public PhantomInstaller() {
         setTitle("Phantom Client Installer");
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(680, 560);
+        setSize(560, 480);
         setResizable(false);
         setLocationRelativeTo(null);
         buildUI();
         autoDetectMinecraft();
     }
 
-    // ──────────────────────────────────────────────────────────────────────
-    // UI construction
-    // ──────────────────────────────────────────────────────────────────────
+    // ── UI construction ────────────────────────────────────────────────────
 
     private void buildUI() {
         JPanel root = new JPanel(new BorderLayout());
@@ -95,7 +85,7 @@ public class PhantomInstaller extends JFrame {
         title.setForeground(ACCENT);
         title.setBorder(new EmptyBorder(14, 16, 14, 0));
 
-        JLabel sub = new JLabel("One-Click Installer  —  Minecraft " + MC_VERSION + "  ", SwingConstants.RIGHT);
+        JLabel sub = new JLabel("Installer  —  Minecraft " + MC_VERSION + "  ", SwingConstants.RIGHT);
         sub.setFont(new Font("SansSerif", Font.PLAIN, 11));
         sub.setForeground(TEXT_DIM);
 
@@ -110,7 +100,7 @@ public class PhantomInstaller extends JFrame {
         center.setBackground(BG);
         center.setBorder(new EmptyBorder(14, 20, 8, 20));
 
-        // ── Path row ────────────────────────────────────────────────────
+        // Path row
         JPanel pathRow = new JPanel(new BorderLayout(6, 0));
         pathRow.setBackground(BG);
         pathRow.setMaximumSize(new Dimension(Integer.MAX_VALUE, 38));
@@ -132,19 +122,26 @@ public class PhantomInstaller extends JFrame {
         center.add(pathRow);
         center.add(Box.createVerticalStrut(10));
 
-        // ── Dependency check grid ────────────────────────────────────────
-        JPanel checkGrid = new JPanel(new GridLayout(1, 5, 6, 0));
+        // Prerequisite notice
+        JLabel prereqNote = lbl(
+            "Prerequisites (install first if missing): Fabric Loader 0.15.11 + Fabric API 0.102.0+1.21.1",
+            new Color(0xFF, 0xA5, 0x00));
+        prereqNote.setFont(new Font("SansSerif", Font.PLAIN, 11));
+        prereqNote.setAlignmentX(0f);
+        center.add(prereqNote);
+        center.add(Box.createVerticalStrut(8));
+
+        // 3-card status row
+        JPanel checkGrid = new JPanel(new GridLayout(1, 3, 6, 0));
         checkGrid.setBackground(BG);
         checkGrid.setMaximumSize(new Dimension(Integer.MAX_VALUE, 68));
         checkGrid.add(rowJava.panel());
         checkGrid.add(rowMC.panel());
-        checkGrid.add(rowFabric.panel());
-        checkGrid.add(rowFabApi.panel());
         checkGrid.add(rowMod.panel());
         center.add(checkGrid);
         center.add(Box.createVerticalStrut(10));
 
-        // ── Log area ─────────────────────────────────────────────────────
+        // Log area
         logArea = new JTextArea(10, 50);
         logArea.setEditable(false);
         logArea.setBackground(new Color(0x0A, 0x0A, 0x0A));
@@ -175,7 +172,7 @@ public class PhantomInstaller extends JFrame {
         progressBar.setBorderPainted(false);
         progressBar.setPreferredSize(new Dimension(300, 8));
 
-        installButton = new JButton("INSTALL EVERYTHING");
+        installButton = new JButton("INSTALL PHANTOM CLIENT");
         installButton.setFont(new Font("SansSerif", Font.BOLD, 15));
         installButton.setBackground(ACCENT);
         installButton.setForeground(Color.WHITE);
@@ -195,9 +192,7 @@ public class PhantomInstaller extends JFrame {
         return footer;
     }
 
-    // ──────────────────────────────────────────────────────────────────────
-    // Dependency checker
-    // ──────────────────────────────────────────────────────────────────────
+    // ── Dependency checker ────────────────────────────────────────────────
 
     private void scheduleCheck() {
         new Thread(this::runChecks, "DependencyChecker").start();
@@ -206,45 +201,28 @@ public class PhantomInstaller extends JFrame {
     private void runChecks() {
         rowJava.update(Status.CHECKING, "Checking…");
         rowMC.update(Status.CHECKING, "Checking…");
-        // Bundled items show immediately as ready
-        rowFabric.update(Status.OK, "Ready to install");
-        rowFabApi.update(Status.OK, "Ready to install");
         rowMod.update(Status.OK, "Ready to install");
 
-        // ── Java version ──────────────────────────────────────────────────
         int javaVer = javaVersion();
         boolean javaOk = javaVer >= MIN_JAVA;
-        if (javaOk) {
-            rowJava.update(Status.OK, "Java " + javaVer);
-        } else {
-            rowJava.update(Status.MISSING,
-                javaVer > 0 ? "Java " + javaVer + " — need 17+" : "Not found");
-        }
+        rowJava.update(javaOk ? Status.OK : Status.MISSING,
+            javaOk ? "Java " + javaVer : (javaVer > 0 ? "Java " + javaVer + " — need 17+" : "Not found"));
 
-        // ── Minecraft installed ───────────────────────────────────────────
         Path mcDir = mcDirPath();
         boolean mcOk = mcDir != null && Files.exists(mcDir);
         if (mcOk) {
-            rowMC.update(Status.OK, "Found");
-            // Refine installed-vs-will-install for the bundled items
-            if (fabricAlreadyInstalled(mcDir)) {
-                rowFabric.update(Status.OK, "Installed");
-            } else {
-                rowFabric.update(Status.WILL_INSTALL, "Will install");
-            }
             try {
-                rowFabApi.update(hasFabricApi(mcDir.resolve("mods"))
-                    ? Status.OK : Status.WILL_INSTALL,
-                    hasFabricApi(mcDir.resolve("mods")) ? "Installed" : "Will install");
-                rowMod.update(hasPhantom(mcDir.resolve("mods"))
-                    ? Status.OK : Status.WILL_INSTALL,
-                    hasPhantom(mcDir.resolve("mods")) ? "Installed" : "Will install");
-            } catch (IOException ignored) {}
+                boolean alreadyIn = hasPhantom(mcDir.resolve("mods"));
+                rowMC.update(Status.OK, "Found");
+                rowMod.update(alreadyIn ? Status.OK : Status.WILL_INSTALL,
+                    alreadyIn ? "Already installed" : "Will install");
+            } catch (IOException ignored) {
+                rowMC.update(Status.OK, "Found");
+            }
         } else {
             rowMC.update(Status.MISSING, "Not found");
         }
 
-        // ── Java and Minecraft are the only blockers ──────────────────────
         boolean blocked = !javaOk || !mcOk;
         SwingUtilities.invokeLater(() -> {
             if (!javaOk) {
@@ -252,21 +230,17 @@ public class PhantomInstaller extends JFrame {
             } else if (!mcOk) {
                 setStatus("Minecraft not found — install Minecraft first, or browse to .minecraft.", ERROR_CLR);
             } else {
-                setStatus("Everything ready — press INSTALL to begin.", TEXT_DIM);
+                setStatus("Ready — press INSTALL PHANTOM CLIENT to begin.", TEXT_DIM);
             }
             installButton.setEnabled(!blocked);
         });
     }
 
-    // ──────────────────────────────────────────────────────────────────────
-    // Install flow
-    // ──────────────────────────────────────────────────────────────────────
+    // ── Install flow ──────────────────────────────────────────────────────
 
     private void autoDetectMinecraft() {
         Path mc = defaultMinecraftDir();
-        if (mc != null && Files.exists(mc)) {
-            mcDirField.setText(mc.toString());
-        }
+        if (mc != null && Files.exists(mc)) mcDirField.setText(mc.toString());
         scheduleCheck();
     }
 
@@ -281,8 +255,7 @@ public class PhantomInstaller extends JFrame {
     }
 
     private void startInstall() {
-        String rawDir = mcDirField.getText().trim();
-        if (rawDir.isEmpty()) {
+        if (mcDirField.getText().trim().isEmpty()) {
             JOptionPane.showMessageDialog(this,
                 "Please select your .minecraft directory first.",
                 "Missing path", JOptionPane.WARNING_MESSAGE);
@@ -299,9 +272,8 @@ public class PhantomInstaller extends JFrame {
             Path mcDir   = Paths.get(mcDirField.getText().trim());
             Path modsDir = mcDir.resolve("mods");
 
-            // ── Validate ──────────────────────────────────────────────────
             setStatus("Validating…", TEXT_DIM);
-            setProgress(2);
+            setProgress(10);
             if (!Files.exists(mcDir)) {
                 log("ERROR: .minecraft not found: " + mcDir);
                 fail(); return;
@@ -310,40 +282,12 @@ public class PhantomInstaller extends JFrame {
             log("Minecraft : " + mcDir);
             log("Mods      : " + modsDir);
             log("Java      : " + System.getProperty("java.version"));
-            setProgress(8);
-
-            // ── Fabric Loader ─────────────────────────────────────────────
-            setStatus("Installing Fabric Loader…", TEXT_DIM);
             log("");
-            log("[ Step 1/3 ] Fabric Loader");
-            if (fabricAlreadyInstalled(mcDir)) {
-                log("  Already installed — skipping.");
-                rowFabric.update(Status.OK, "Installed");
-            } else {
-                installFabricLoader(mcDir);
-            }
-            setProgress(40);
 
-            // ── Fabric API ────────────────────────────────────────────────
-            setStatus("Installing Fabric API…", TEXT_DIM);
-            log("");
-            log("[ Step 2/3 ] Fabric API");
-            if (hasFabricApi(modsDir)) {
-                log("  Already in mods — skipping.");
-                rowFabApi.update(Status.OK, "Installed");
-            } else {
-                extractResource("/fabric-api.jar", modsDir.resolve(FABRIC_API_FILE));
-                log("  Installed: " + FABRIC_API_FILE);
-                rowFabApi.update(Status.OK, "Installed");
-            }
-            setProgress(65);
-
-            // ── Phantom Client ────────────────────────────────────────────
             setStatus("Installing Phantom Client…", TEXT_DIM);
-            log("");
-            log("[ Step 3/3 ] Phantom Client");
+            setProgress(40);
+            log("Installing " + MOD_FILE + "…");
             extractResource("/phantom-1.0.0.jar", modsDir.resolve(MOD_FILE));
-            log("  Installed: " + MOD_FILE);
             rowMod.update(Status.OK, "Installed");
             setProgress(90);
 
@@ -353,9 +297,15 @@ public class PhantomInstaller extends JFrame {
             log("");
             log("══════════════════════════════════════");
             log("  Installation complete!");
-            log("  Open Minecraft Launcher");
-            log("  → Select Fabric 1.21.1 → Play");
-            log("  → Press TAB in-game");
+            log("");
+            log("  Next steps:");
+            log("  1. Make sure Fabric Loader 0.15.11 is");
+            log("     installed (fabricmc.net/use/installer)");
+            log("  2. Make sure Fabric API 0.102.0+1.21.1");
+            log("     is in your mods folder");
+            log("  3. Open Minecraft Launcher");
+            log("     → Select Fabric 1.21.1 → Play");
+            log("     → Press TAB in-game");
             log("══════════════════════════════════════");
             setStatus("Done!  Launcher → Fabric 1.21.1 → Play → TAB", SUCCESS);
             SwingUtilities.invokeLater(() -> {
@@ -370,74 +320,30 @@ public class PhantomInstaller extends JFrame {
         }
     }
 
-    // ──────────────────────────────────────────────────────────────────────
-    // Install step implementations
-    // ──────────────────────────────────────────────────────────────────────
-
-    private void installFabricLoader(Path mcDir) {
-        try {
-            log("  Extracting bundled Fabric Installer…");
-            Path tmp = Files.createTempFile("fabric-installer-", ".jar");
-            extractResource("/fabric-installer.jar", tmp);
-
-            log("  Running installer silently…");
-            ProcessBuilder pb = new ProcessBuilder(
-                javaExecutable(), "-jar", tmp.toString(),
-                "client", "-mcversion", MC_VERSION,
-                "-loader", LOADER_VERSION,
-                "-dir", mcDir.toString(), "-noprofile"
-            );
-            pb.redirectErrorStream(true);
-            Process proc = pb.start();
-            try (BufferedReader br = new BufferedReader(
-                    new InputStreamReader(proc.getInputStream()))) {
-                String line;
-                while ((line = br.readLine()) != null) log("    " + line);
-            }
-            int exit = proc.waitFor();
-            Files.deleteIfExists(tmp);
-            if (exit == 0) {
-                log("  Fabric Loader " + LOADER_VERSION + " installed.");
-            } else {
-                log("  Installer exited " + exit + " (may already be installed).");
-            }
-            rowFabric.update(Status.OK, "Installed");
-        } catch (Exception e) {
-            log("  Error: " + e.getMessage());
-            log("  → Install manually: https://fabricmc.net/use/installer/");
-            rowFabric.update(Status.MISSING, "Manual required");
-        }
-    }
-
-    /**
-     * Extracts a resource bundled inside this JAR to dest.
-     * Throws if the resource is missing — that means the JAR was built incorrectly.
-     */
     private void extractResource(String resource, Path dest) throws IOException {
         try (InputStream in = PhantomInstaller.class.getResourceAsStream(resource)) {
-            if (in == null) {
-                throw new IOException(
-                    "Missing bundled resource: " + resource + "\n" +
-                    "Re-run package-release.sh to rebuild the installer correctly.");
-            }
+            if (in == null) throw new IOException(
+                "Missing bundled resource: " + resource +
+                "\nRe-run package-release.bat to rebuild the installer.");
             Files.copy(in, dest, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
     private void writeReadme(Path modsDir) throws IOException {
         Files.writeString(modsDir.resolve("PHANTOM_README.txt"),
-            "Phantom Client v1.0\n" +
-            "===================\n" +
-            "MC: " + MC_VERSION + " | Fabric Loader: " + LOADER_VERSION + "\n\n" +
-            "TAB          — Open/close Phantom GUI\n" +
-            "Left-click   — Expand module settings\n" +
-            "Right-click  — Toggle module on/off\n\n" +
-            "168 modules: Combat, Movement, Visual, World, Utility, QoL, Tweakeroo\n");
+            "Phantom Client v1.0  |  MC " + MC_VERSION + "\n" +
+            "=====================================\n\n" +
+            "Prerequisites:\n" +
+            "  • Fabric Loader 0.15.11  (fabricmc.net/use/installer)\n" +
+            "  • Fabric API 0.102.0+1.21.1  (modrinth.com/mod/fabric-api)\n\n" +
+            "Controls:\n" +
+            "  TAB          — Open/close Phantom GUI\n" +
+            "  Left-click   — Expand module settings\n" +
+            "  Right-click  — Toggle module on/off\n\n" +
+            "168 modules: Combat, Movement, Visual, World, Utility, QoL\n");
     }
 
-    // ──────────────────────────────────────────────────────────────────────
-    // Detection helpers
-    // ──────────────────────────────────────────────────────────────────────
+    // ── Helpers ───────────────────────────────────────────────────────────
 
     private static int javaVersion() {
         try {
@@ -446,34 +352,6 @@ public class PhantomInstaller extends JFrame {
             int dot = ver.indexOf('.');
             return Integer.parseInt(dot > 0 ? ver.substring(0, dot) : ver);
         } catch (Exception e) { return 0; }
-    }
-
-    private static String javaExecutable() {
-        String home = System.getProperty("java.home");
-        if (home != null) {
-            File f = new File(home, "bin/java");
-            if (f.exists()) return f.getAbsolutePath();
-            f = new File(home, "bin/java.exe");
-            if (f.exists()) return f.getAbsolutePath();
-        }
-        return "java";
-    }
-
-    private boolean fabricAlreadyInstalled(Path mcDir) {
-        Path versions = mcDir.resolve("versions");
-        if (!Files.exists(versions)) return false;
-        try {
-            return Files.list(versions)
-                .map(p -> p.getFileName().toString().toLowerCase())
-                .anyMatch(n -> n.contains("fabric") || n.contains("loader"));
-        } catch (IOException e) { return false; }
-    }
-
-    private boolean hasFabricApi(Path modsDir) throws IOException {
-        if (!Files.exists(modsDir)) return false;
-        return Files.list(modsDir)
-            .map(p -> p.getFileName().toString().toLowerCase())
-            .anyMatch(n -> n.startsWith("fabric-api") || n.startsWith("fabric_api"));
     }
 
     private boolean hasPhantom(Path modsDir) throws IOException {
@@ -501,10 +379,6 @@ public class PhantomInstaller extends JFrame {
         }
     }
 
-    // ──────────────────────────────────────────────────────────────────────
-    // UI helpers
-    // ──────────────────────────────────────────────────────────────────────
-
     private void log(String msg) {
         SwingUtilities.invokeLater(() -> {
             logArea.append(msg + "\n");
@@ -513,10 +387,7 @@ public class PhantomInstaller extends JFrame {
     }
 
     private void setStatus(String msg, Color c) {
-        SwingUtilities.invokeLater(() -> {
-            statusLabel.setText(msg);
-            statusLabel.setForeground(c);
-        });
+        SwingUtilities.invokeLater(() -> { statusLabel.setText(msg); statusLabel.setForeground(c); });
     }
 
     private void setProgress(int pct) {
@@ -560,14 +431,9 @@ public class PhantomInstaller extends JFrame {
         return b;
     }
 
-    // ──────────────────────────────────────────────────────────────────────
-    // CheckRow — single dependency status card
-    // ──────────────────────────────────────────────────────────────────────
-
     private class CheckRow {
         private final JPanel card;
         private final JLabel dot;
-        private final JLabel name;
         private final JLabel detail;
 
         CheckRow(String title, String initialDetail) {
@@ -583,7 +449,7 @@ public class PhantomInstaller extends JFrame {
             dot.setForeground(TEXT_DIM);
             dot.setAlignmentX(0.5f);
 
-            name = new JLabel(title, SwingConstants.CENTER);
+            JLabel name = new JLabel(title, SwingConstants.CENTER);
             name.setFont(new Font("SansSerif", Font.BOLD, 11));
             name.setForeground(TEXT);
             name.setAlignmentX(0.5f);
@@ -606,7 +472,7 @@ public class PhantomInstaller extends JFrame {
             SwingUtilities.invokeLater(() -> {
                 switch (s) {
                     case OK:           dot.setText("✔"); dot.setForeground(SUCCESS);   break;
-                    case WILL_INSTALL: dot.setText("↓"); dot.setForeground(WARN);      break;
+                    case WILL_INSTALL: dot.setText("↓"); dot.setForeground(new Color(0xFF,0xA5,0x00)); break;
                     case MISSING:      dot.setText("✘"); dot.setForeground(ERROR_CLR); break;
                     case CHECKING:     dot.setText("…"); dot.setForeground(TEXT_DIM);  break;
                 }

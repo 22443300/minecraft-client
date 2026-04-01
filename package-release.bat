@@ -52,32 +52,8 @@ if "%MOD_JAR%"=="" (
 )
 echo       Built: %MOD_JAR%
 
-REM ── 2. Download Fabric Installer + Fabric API ─────────────────────────────
-echo [2/5] Downloading bundled dependencies...
-if not exist installer\deps mkdir installer\deps
-
-if not exist installer\deps\fabric-installer.jar (
-    echo       Downloading Fabric Installer...
-    curl -fsSL "https://maven.fabricmc.net/net/fabricmc/fabric-installer/1.0.1/fabric-installer-1.0.1.jar" -o installer\deps\fabric-installer.jar
-    if %errorlevel% neq 0 (
-        echo ERROR: Could not download Fabric Installer. Check your internet connection.
-        pause & exit /b 1
-    )
-)
-echo       Fabric Installer: OK
-
-if not exist installer\deps\fabric-api.jar (
-    echo       Downloading Fabric API...
-    curl -fsSL "https://cdn.modrinth.com/data/P7dR8mSH/versions/lcy3WH6P/fabric-api-0.102.0+1.21.1.jar" -o installer\deps\fabric-api.jar
-    if %errorlevel% neq 0 (
-        echo ERROR: Could not download Fabric API. Check your internet connection.
-        pause & exit /b 1
-    )
-)
-echo       Fabric API: OK
-
-REM ── 3. Compile installer ───────────────────────────────────────────────────
-echo [3/5] Compiling installer...
+REM ── 2. Compile installer ──────────────────────────────────────────────────
+echo [2/3] Compiling installer...
 cd installer
 if exist out rmdir /s /q out
 mkdir out
@@ -89,20 +65,16 @@ if %errorlevel% neq 0 (
 )
 echo       Compiled.
 
-REM ── 4. Bundle everything into installer JAR ────────────────────────────────
-echo [4/5] Bundling mod + Fabric Installer + Fabric API into installer...
-copy /y "%MOD_JAR%"              out\phantom-1.0.0.jar >nul
+REM ── 3. Bundle mod JAR into installer ─────────────────────────────────────
+echo [3/3] Bundling mod into installer...
+copy /y "%MOD_JAR%" out\phantom-1.0.0.jar >nul
 if %errorlevel% neq 0 ( echo ERROR: Failed to copy mod JAR. & cd .. & pause & exit /b 1 )
-copy /y deps\fabric-installer.jar out\fabric-installer.jar >nul
-if %errorlevel% neq 0 ( echo ERROR: Failed to copy fabric-installer.jar. & cd .. & pause & exit /b 1 )
-copy /y deps\fabric-api.jar       out\fabric-api.jar >nul
-if %errorlevel% neq 0 ( echo ERROR: Failed to copy fabric-api.jar. & cd .. & pause & exit /b 1 )
 jar -cfe PhantomClientInstaller.jar dev.phantom.installer.PhantomInstaller -C out .
 echo       Packaged: installer\PhantomClientInstaller.jar
 cd ..
 
-REM ── 5. Assemble release folder ────────────────────────────────────────────
-echo [5/5] Assembling release folder...
+REM ── 4. Assemble release folder ────────────────────────────────────────────
+echo Assembling release folder...
 if exist release rmdir /s /q release
 mkdir release
 copy installer\PhantomClientInstaller.jar release\PhantomClientInstaller.jar >nul
@@ -112,11 +84,16 @@ copy installer\PhantomInstaller.sh         release\PhantomClientInstaller.sh  >n
 echo Phantom Client v1.0 - Installation Instructions > release\HOW_TO_INSTALL.txt
 echo ================================================ >> release\HOW_TO_INSTALL.txt
 echo. >> release\HOW_TO_INSTALL.txt
-echo Requirement: Java 21  (https://adoptium.net/ if not installed) >> release\HOW_TO_INSTALL.txt
+echo PREREQUISITES (do these first if not already done): >> release\HOW_TO_INSTALL.txt
+echo   1. Java 21         https://adoptium.net/ >> release\HOW_TO_INSTALL.txt
+echo   2. Fabric Loader   https://fabricmc.net/use/installer/ >> release\HOW_TO_INSTALL.txt
+echo      - Select Minecraft 1.21.1 + Loader 0.15.11, click Install >> release\HOW_TO_INSTALL.txt
+echo   3. Fabric API      https://modrinth.com/mod/fabric-api >> release\HOW_TO_INSTALL.txt
+echo      - Download fabric-api-0.102.0+1.21.1.jar into your mods folder >> release\HOW_TO_INSTALL.txt
 echo. >> release\HOW_TO_INSTALL.txt
-echo WINDOWS: >> release\HOW_TO_INSTALL.txt
+echo INSTALL PHANTOM CLIENT: >> release\HOW_TO_INSTALL.txt
 echo   Double-click PhantomClientInstaller.bat >> release\HOW_TO_INSTALL.txt
-echo   Press "INSTALL EVERYTHING" >> release\HOW_TO_INSTALL.txt
+echo   Press "INSTALL PHANTOM CLIENT" >> release\HOW_TO_INSTALL.txt
 echo. >> release\HOW_TO_INSTALL.txt
 echo After install: >> release\HOW_TO_INSTALL.txt
 echo   Open Minecraft Launcher - select Fabric 1.21.1 - Play >> release\HOW_TO_INSTALL.txt
