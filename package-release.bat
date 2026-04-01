@@ -91,9 +91,12 @@ echo       Compiled.
 
 REM ── 4. Bundle everything into installer JAR ────────────────────────────────
 echo [4/5] Bundling mod + Fabric Installer + Fabric API into installer...
-copy /y "..\%MOD_JAR%"          out\phantom-1.0.0.jar >nul
+copy /y "%MOD_JAR%"              out\phantom-1.0.0.jar >nul
+if %errorlevel% neq 0 ( echo ERROR: Failed to copy mod JAR. & cd .. & pause & exit /b 1 )
 copy /y deps\fabric-installer.jar out\fabric-installer.jar >nul
+if %errorlevel% neq 0 ( echo ERROR: Failed to copy fabric-installer.jar. & cd .. & pause & exit /b 1 )
 copy /y deps\fabric-api.jar       out\fabric-api.jar >nul
+if %errorlevel% neq 0 ( echo ERROR: Failed to copy fabric-api.jar. & cd .. & pause & exit /b 1 )
 jar -cfe PhantomClientInstaller.jar dev.phantom.installer.PhantomInstaller -C out .
 echo       Packaged: installer\PhantomClientInstaller.jar
 cd ..
