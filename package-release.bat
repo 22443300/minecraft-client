@@ -9,6 +9,31 @@ echo  Phantom Client - Release Packager
 echo  ==================================
 echo.
 
+REM ── Java version check ────────────────────────────────────────────────────
+where java >nul 2>&1
+if %errorlevel% neq 0 (
+    echo ERROR: Java not found.
+    echo   Install Java 21 from https://adoptium.net/
+    echo   Then re-run this script.
+    pause & exit /b 1
+)
+
+REM Extract major version number
+for /f "tokens=3" %%v in ('java -version 2^>^&1 ^| findstr /i "version"') do (
+    set JAVA_VER_RAW=%%v
+)
+set JAVA_VER_RAW=%JAVA_VER_RAW:"=%
+for /f "delims=." %%m in ("%JAVA_VER_RAW%") do set JAVA_MAJOR=%%m
+
+if %JAVA_MAJOR% LSS 17 (
+    echo ERROR: Java %JAVA_MAJOR% detected - Java 17 or higher is required.
+    echo   Install Java 21 from https://adoptium.net/
+    echo   Then re-run this script.
+    pause & exit /b 1
+)
+echo   Java %JAVA_MAJOR% detected. OK.
+echo.
+
 REM ── 1. Build the mod ──────────────────────────────────────────────────────
 echo [1/4] Building Phantom Client mod...
 call gradlew.bat build --no-daemon -q

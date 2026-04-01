@@ -12,6 +12,21 @@ echo "║   Phantom Client — Release Packager  ║"
 echo "╚══════════════════════════════════════╝"
 echo ""
 
+# ── Java version check ───────────────────────────────────────────────────────
+JAVA_VER=$(java -version 2>&1 | head -1 | sed 's/.*version "\([0-9]*\).*/\1/')
+if [ -z "$JAVA_VER" ]; then
+    echo "ERROR: Java not found."
+    echo "  Install Java 21 from https://adoptium.net/ then re-run this script."
+    exit 1
+fi
+if [ "$JAVA_VER" -lt 17 ] 2>/dev/null; then
+    echo "ERROR: Java $JAVA_VER detected — Java 17 or higher is required."
+    echo "  Install Java 21 from https://adoptium.net/ then re-run this script."
+    exit 1
+fi
+echo "  Java $JAVA_VER detected. OK."
+echo ""
+
 # ── 1. Build the mod ────────────────────────────────────────────────────────
 echo "[1/4] Building Phantom Client mod..."
 ./gradlew build --no-daemon -q
@@ -38,7 +53,7 @@ echo "      Packaged: installer/PhantomClientInstaller.jar ($SIZE)"
 cd ..
 
 # ── 4. Assemble release folder ────────────────────────────────────────────────
-echo "[4/4] Assembling release folder..."
+echo "[4/5] Assembling release folder..."
 rm -rf release && mkdir release
 cp installer/PhantomClientInstaller.jar release/
 cp installer/PhantomInstaller.bat       release/PhantomClientInstaller.bat
@@ -51,16 +66,17 @@ Phantom Client v1.0 — Installation Instructions
 
 Requirement: Java 21  (https://adoptium.net/ if not installed)
 
+MAC (easiest — double-click app):
+  Unzip PhantomClientInstaller.zip
+  Double-click PhantomClientInstaller.app
+  Press "INSTALL EVERYTHING"
+  (If macOS blocks it: right-click → Open → Open anyway)
+
 WINDOWS:
   Double-click PhantomClientInstaller.bat
   Press "INSTALL EVERYTHING"
 
-MAC / LINUX:
-  Double-click PhantomClientInstaller.sh
-  (or: chmod +x PhantomClientInstaller.sh && ./PhantomClientInstaller.sh)
-  Press "INSTALL EVERYTHING"
-
-MANUAL (any platform):
+LINUX / MANUAL:
   java -jar PhantomClientInstaller.jar
 
 After install:
@@ -68,11 +84,18 @@ After install:
   Press TAB in-game to open the Phantom Client menu
 EOF
 
+# ── 5. Build macOS .app bundle ────────────────────────────────────────────────
+echo "[5/5] Building macOS .app bundle..."
+bash create-macapp.sh
+
 echo ""
-echo "╔══════════════════════════════════════════════════════╗"
-echo "║  Done!  Share the entire  release/  folder           ║"
-echo "║  OR just share  PhantomClientInstaller.jar  alone    ║"
-echo "║  Team members just double-click and press Install.   ║"
-echo "╚══════════════════════════════════════════════════════╝"
+echo "╔══════════════════════════════════════════════════════════╗"
+echo "║  Done!  Files in  release/                               ║"
+echo "║                                                          ║"
+echo "║  Mac team members:   share PhantomClientInstaller.zip   ║"
+echo "║                      (unzip → double-click .app)        ║"
+echo "║  Windows:            share PhantomClientInstaller.bat   ║"
+echo "║  All platforms:      java -jar PhantomClientInstaller.jar║"
+echo "╚══════════════════════════════════════════════════════════╝"
 echo ""
 ls -lh release/
