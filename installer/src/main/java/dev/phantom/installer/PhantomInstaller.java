@@ -419,25 +419,39 @@ public class PhantomInstaller extends JFrame {
         }
     }
 
-    /** Copy the Phantom Client JAR from next to this installer into mods. */
+    /** Copy the Phantom Client JAR into mods.
+     *  Priority: 1) bundled inside this installer JAR  2) next to this JAR  3) nearby dirs */
     private void copyPhantomJar(Path modsDir) throws IOException {
+        // 1. Check for mod bundled inside this installer as a resource
+        InputStream bundled = PhantomInstaller.class.getResourceAsStream("/phantom-1.0.0.jar");
+        if (bundled != null) {
+            Path dest = modsDir.resolve("phantom-1.0.0.jar");
+            Files.copy(bundled, dest, StandardCopyOption.REPLACE_EXISTING);
+            bundled.close();
+            log("  Installed: phantom-1.0.0.jar (bundled)");
+            return;
+        }
+
+        // 2. Check next to installer on disk
         if (jarPath != null && Files.exists(jarPath)) {
             Path dest = modsDir.resolve(jarPath.getFileName());
             Files.copy(jarPath, dest, StandardCopyOption.REPLACE_EXISTING);
             log("  Installed: " + jarPath.getFileName());
-        } else {
-            // Try to find it in the current working directory too
-            Optional<Path> found = findPhantomJarNearby();
-            if (found.isPresent()) {
-                Path dest = modsDir.resolve(found.get().getFileName());
-                Files.copy(found.get(), dest, StandardCopyOption.REPLACE_EXISTING);
-                log("  Installed: " + found.get().getFileName());
-            } else {
-                log("  WARNING: phantom-*.jar not found next to this installer.");
-                log("  Build the mod first:  ./gradlew build");
-                log("  Then copy phantom-1.0.0.jar into: " + modsDir);
-            }
+            return;
         }
+
+        // 3. Search nearby directories
+        Optional<Path> found = findPhantomJarNearby();
+        if (found.isPresent()) {
+            Path dest = modsDir.resolve(found.get().getFileName());
+            Files.copy(found.get(), dest, StandardCopyOption.REPLACE_EXISTING);
+            log("  Installed: " + found.get().getFileName());
+            return;
+        }
+
+        log("  WARNING: phantom-*.jar not found.");
+        log("  Build the mod: ./gradlew build");
+        log("  Then re-run this installer.");
     }
 
     private void writeReadme(Path modsDir) throws IOException {
