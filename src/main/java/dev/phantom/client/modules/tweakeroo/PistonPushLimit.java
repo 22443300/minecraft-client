@@ -1,17 +1,9 @@
 package dev.phantom.client.modules.tweakeroo;
-
 import dev.phantom.client.core.module.Category;
 import dev.phantom.client.core.module.Module;
-
+import dev.phantom.client.core.module.setting.*;
 public class PistonPushLimit extends Module {
-
-    public PistonPushLimit() {
-        super("PistonPushLimit", "Increases piston push limit client-side", Category.TWEAKEROO);
-    }
-
-    @Override
-    public void onEnable() {}
-
-    @Override
-    public void onDisable() {}
+    private final IntSetting limit = register(new IntSetting("Limit","Max blocks pistons can push",12,1,1000));
+    private final BooleanSetting warn = register(new BooleanSetting("Warn","Warn when limit is reached",false));
+    public PistonPushLimit() { super("PistonPushLimit","Override the 12-block piston limit",Category.TWEAKEROO); }
 }

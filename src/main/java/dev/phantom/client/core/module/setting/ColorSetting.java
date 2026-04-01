@@ -16,6 +16,18 @@ public class ColorSetting extends Setting<Integer> {
         this(name, description, defaultValue, true);
     }
 
+    /** Convenience constructor using float RGBA components (each 0.0-1.0). */
+    public ColorSetting(String name, String description, float r, float g, float b, float a) {
+        this(name, description,
+             ((int)(a * 255) << 24) | ((int)(r * 255) << 16) | ((int)(g * 255) << 8) | (int)(b * 255),
+             true);
+    }
+
+    /** Convenience constructor using float RGB components with full opacity. */
+    public ColorSetting(String name, String description, float r, float g, float b) {
+        this(name, description, r, g, b, 1.0f);
+    }
+
     public boolean isHasAlpha() {
         return hasAlpha;
     }
