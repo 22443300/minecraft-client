@@ -68,7 +68,6 @@ public class FriendListScreen extends Screen {
     // Screen lifecycle
     // -------------------------------------------------------------------------
 
-    @Override
     public boolean isPauseScreen() {
         return false;
     }

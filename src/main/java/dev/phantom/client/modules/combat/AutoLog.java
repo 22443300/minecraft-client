@@ -23,7 +23,7 @@ public class AutoLog extends Module {
     public void onTick(TickEvent event) {
         MinecraftClient mc = MinecraftClient.getInstance();
         if (mc.player == null || mc.getNetworkHandler() == null) return;
-        if (mc.player.getHealth() <= (float) healthThreshold.getValue()) {
+        if (mc.player.getHealth() <= healthThreshold.getValue().floatValue()) {
             mc.getNetworkHandler().getConnection().disconnect(Text.literal(message.getValue()));
         }
     }

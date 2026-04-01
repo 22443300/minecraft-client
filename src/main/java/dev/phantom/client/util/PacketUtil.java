@@ -32,7 +32,7 @@ public final class PacketUtil {
      * Does not update client-side player rotation.
      */
     public static void sendRotation(float yaw, float pitch, boolean onGround) {
-        send(new PlayerMoveC2SPacket.LookAndOnGround(yaw, pitch, onGround, false));
+        send(new PlayerMoveC2SPacket.LookAndOnGround(yaw, pitch, onGround));
     }
 
     /**

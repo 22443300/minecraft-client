@@ -13,7 +13,6 @@ import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.util.math.Box;
 import net.minecraft.util.math.Vec3d;
-import org.joml.Matrix3f;
 import org.joml.Matrix4f;
 
 public final class Renderer3D {
@@ -36,59 +35,58 @@ public final class Renderer3D {
     public static void drawBox(MatrixStack matrices, Box box, int color, float lineWidth) {
         float r = red(color), g = green(color), b = blue(color), a = alpha(color);
 
-        RenderSystem.setShader(GameRenderer::getRenderTypeLinesShader);
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         RenderSystem.lineWidth(lineWidth);
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        Matrix4f posMatrix  = matrices.peek().getPositionMatrix();
-        Matrix3f normalMatrix = matrices.peek().getNormalMatrix();
+        Matrix4f posMatrix = matrices.peek().getPositionMatrix();
 
         Tessellator tess = Tessellator.getInstance();
-        BufferBuilder buf = tess.begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES);
+        BufferBuilder buf = tess.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 
         float x1 = (float) box.minX, y1 = (float) box.minY, z1 = (float) box.minZ;
         float x2 = (float) box.maxX, y2 = (float) box.maxY, z2 = (float) box.maxZ;
 
         // Bottom face edges
-        buf.vertex(posMatrix, x1, y1, z1).color(r, g, b, a).normal(normalMatrix,  1,  0,  0);
-        buf.vertex(posMatrix, x2, y1, z1).color(r, g, b, a).normal(normalMatrix,  1,  0,  0);
+        buf.vertex(posMatrix, x1, y1, z1).color(r, g, b, a);
+        buf.vertex(posMatrix, x2, y1, z1).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x2, y1, z1).color(r, g, b, a).normal(normalMatrix,  0,  0,  1);
-        buf.vertex(posMatrix, x2, y1, z2).color(r, g, b, a).normal(normalMatrix,  0,  0,  1);
+        buf.vertex(posMatrix, x2, y1, z1).color(r, g, b, a);
+        buf.vertex(posMatrix, x2, y1, z2).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x2, y1, z2).color(r, g, b, a).normal(normalMatrix, -1,  0,  0);
-        buf.vertex(posMatrix, x1, y1, z2).color(r, g, b, a).normal(normalMatrix, -1,  0,  0);
+        buf.vertex(posMatrix, x2, y1, z2).color(r, g, b, a);
+        buf.vertex(posMatrix, x1, y1, z2).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x1, y1, z2).color(r, g, b, a).normal(normalMatrix,  0,  0, -1);
-        buf.vertex(posMatrix, x1, y1, z1).color(r, g, b, a).normal(normalMatrix,  0,  0, -1);
+        buf.vertex(posMatrix, x1, y1, z2).color(r, g, b, a);
+        buf.vertex(posMatrix, x1, y1, z1).color(r, g, b, a);
 
         // Top face edges
-        buf.vertex(posMatrix, x1, y2, z1).color(r, g, b, a).normal(normalMatrix,  1,  0,  0);
-        buf.vertex(posMatrix, x2, y2, z1).color(r, g, b, a).normal(normalMatrix,  1,  0,  0);
+        buf.vertex(posMatrix, x1, y2, z1).color(r, g, b, a);
+        buf.vertex(posMatrix, x2, y2, z1).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x2, y2, z1).color(r, g, b, a).normal(normalMatrix,  0,  0,  1);
-        buf.vertex(posMatrix, x2, y2, z2).color(r, g, b, a).normal(normalMatrix,  0,  0,  1);
+        buf.vertex(posMatrix, x2, y2, z1).color(r, g, b, a);
+        buf.vertex(posMatrix, x2, y2, z2).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x2, y2, z2).color(r, g, b, a).normal(normalMatrix, -1,  0,  0);
-        buf.vertex(posMatrix, x1, y2, z2).color(r, g, b, a).normal(normalMatrix, -1,  0,  0);
+        buf.vertex(posMatrix, x2, y2, z2).color(r, g, b, a);
+        buf.vertex(posMatrix, x1, y2, z2).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x1, y2, z2).color(r, g, b, a).normal(normalMatrix,  0,  0, -1);
-        buf.vertex(posMatrix, x1, y2, z1).color(r, g, b, a).normal(normalMatrix,  0,  0, -1);
+        buf.vertex(posMatrix, x1, y2, z2).color(r, g, b, a);
+        buf.vertex(posMatrix, x1, y2, z1).color(r, g, b, a);
 
         // Vertical edges
-        buf.vertex(posMatrix, x1, y1, z1).color(r, g, b, a).normal(normalMatrix,  0,  1,  0);
-        buf.vertex(posMatrix, x1, y2, z1).color(r, g, b, a).normal(normalMatrix,  0,  1,  0);
+        buf.vertex(posMatrix, x1, y1, z1).color(r, g, b, a);
+        buf.vertex(posMatrix, x1, y2, z1).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x2, y1, z1).color(r, g, b, a).normal(normalMatrix,  0,  1,  0);
-        buf.vertex(posMatrix, x2, y2, z1).color(r, g, b, a).normal(normalMatrix,  0,  1,  0);
+        buf.vertex(posMatrix, x2, y1, z1).color(r, g, b, a);
+        buf.vertex(posMatrix, x2, y2, z1).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x2, y1, z2).color(r, g, b, a).normal(normalMatrix,  0,  1,  0);
-        buf.vertex(posMatrix, x2, y2, z2).color(r, g, b, a).normal(normalMatrix,  0,  1,  0);
+        buf.vertex(posMatrix, x2, y1, z2).color(r, g, b, a);
+        buf.vertex(posMatrix, x2, y2, z2).color(r, g, b, a);
 
-        buf.vertex(posMatrix, x1, y1, z2).color(r, g, b, a).normal(normalMatrix,  0,  1,  0);
-        buf.vertex(posMatrix, x1, y2, z2).color(r, g, b, a).normal(normalMatrix,  0,  1,  0);
+        buf.vertex(posMatrix, x1, y1, z2).color(r, g, b, a);
+        buf.vertex(posMatrix, x1, y2, z2).color(r, g, b, a);
 
         BufferRenderer.drawWithGlobalProgram(buf.end());
 
@@ -166,29 +164,19 @@ public final class Renderer3D {
     public static void drawLine(MatrixStack matrices, Vec3d start, Vec3d end, int color, float lineWidth) {
         float r = red(color), g = green(color), b = blue(color), a = alpha(color);
 
-        RenderSystem.setShader(GameRenderer::getRenderTypeLinesShader);
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         RenderSystem.lineWidth(lineWidth);
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        Matrix4f posMatrix  = matrices.peek().getPositionMatrix();
-        Matrix3f normalMatrix = matrices.peek().getNormalMatrix();
-
-        float dx = (float)(end.x - start.x);
-        float dy = (float)(end.y - start.y);
-        float dz = (float)(end.z - start.z);
-        float len = (float) Math.sqrt(dx * dx + dy * dy + dz * dz);
-        if (len == 0f) len = 1f;
-        float nx = dx / len, ny = dy / len, nz = dz / len;
+        Matrix4f posMatrix = matrices.peek().getPositionMatrix();
 
         Tessellator tess = Tessellator.getInstance();
-        BufferBuilder buf = tess.begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES);
+        BufferBuilder buf = tess.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 
-        buf.vertex(posMatrix, (float) start.x, (float) start.y, (float) start.z)
-           .color(r, g, b, a).normal(normalMatrix, nx, ny, nz);
-        buf.vertex(posMatrix, (float) end.x,   (float) end.y,   (float) end.z)
-           .color(r, g, b, a).normal(normalMatrix, nx, ny, nz);
+        buf.vertex(posMatrix, (float) start.x, (float) start.y, (float) start.z).color(r, g, b, a);
+        buf.vertex(posMatrix, (float) end.x,   (float) end.y,   (float) end.z).color(r, g, b, a);
 
         BufferRenderer.drawWithGlobalProgram(buf.end());
 
@@ -204,17 +192,16 @@ public final class Renderer3D {
     public static void drawCircle(MatrixStack matrices, Vec3d center, double radius, int segments, int color, float lineWidth) {
         float r = red(color), g = green(color), b = blue(color), a = alpha(color);
 
-        RenderSystem.setShader(GameRenderer::getRenderTypeLinesShader);
+        RenderSystem.setShader(GameRenderer::getPositionColorProgram);
         RenderSystem.lineWidth(lineWidth);
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
         RenderSystem.defaultBlendFunc();
 
-        Matrix4f posMatrix  = matrices.peek().getPositionMatrix();
-        Matrix3f normalMatrix = matrices.peek().getNormalMatrix();
+        Matrix4f posMatrix = matrices.peek().getPositionMatrix();
 
         Tessellator tess = Tessellator.getInstance();
-        BufferBuilder buf = tess.begin(VertexFormat.DrawMode.LINES, VertexFormats.LINES);
+        BufferBuilder buf = tess.begin(VertexFormat.DrawMode.DEBUG_LINES, VertexFormats.POSITION_COLOR);
 
         float cx = (float) center.x;
         float cy = (float) center.y;
@@ -229,8 +216,8 @@ public final class Renderer3D {
             float x2 = cx + (float)(Math.cos(angle2) * radius);
             float z2 = cz + (float)(Math.sin(angle2) * radius);
 
-            buf.vertex(posMatrix, x1, cy, z1).color(r, g, b, a).normal(normalMatrix, 0, 1, 0);
-            buf.vertex(posMatrix, x2, cy, z2).color(r, g, b, a).normal(normalMatrix, 0, 1, 0);
+            buf.vertex(posMatrix, x1, cy, z1).color(r, g, b, a);
+            buf.vertex(posMatrix, x2, cy, z2).color(r, g, b, a);
         }
 
         BufferRenderer.drawWithGlobalProgram(buf.end());

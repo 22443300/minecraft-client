@@ -39,10 +39,8 @@ public class ClientWorldMixin {
         Module m = client.modules.get("timechanger").orElse(null);
         if (m == null || !m.isEnabled()) return;
 
-        // TimeChanger exposes the desired tick time via a static accessor so
-        // this mixin does not need to import the concrete module type's setting
-        // infrastructure — keeping coupling minimal.
-        long overrideTime = TimeChanger.getOverrideTime();
+        if (TimeChanger.INSTANCE == null) return;
+        long overrideTime = TimeChanger.INSTANCE.getOverrideTime();
         cir.setReturnValue(overrideTime);
         cir.cancel();
     }
@@ -67,7 +65,9 @@ public class ClientWorldMixin {
         Module m = client.modules.get("weatherchanger").orElse(null);
         if (m == null || !m.isEnabled()) return;
 
-        float override = WeatherChanger.getRainGradient();
+        if (WeatherChanger.INSTANCE == null) return;
+        String mode = WeatherChanger.INSTANCE.getWeatherMode();
+        float override = "Clear".equals(mode) ? 0f : "Rain".equals(mode) ? 1f : cir.getReturnValue();
         cir.setReturnValue(override);
         cir.cancel();
     }

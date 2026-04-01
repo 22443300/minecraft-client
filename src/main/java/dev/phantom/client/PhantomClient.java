@@ -4,7 +4,6 @@ import dev.phantom.client.core.config.ConfigManager;
 import dev.phantom.client.core.event.EventBus;
 import dev.phantom.client.core.event.events.ConnectEvent;
 import dev.phantom.client.core.event.events.RenderHudEvent;
-import dev.phantom.client.core.event.events.RenderWorldEvent;
 import dev.phantom.client.core.friend.FriendManager;
 import dev.phantom.client.core.macro.MacroManager;
 import dev.phantom.client.core.module.ModuleManager;
@@ -18,7 +17,6 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.networking.v1.ClientPlayConnectionEvents;
 import net.fabricmc.fabric.api.client.rendering.v1.HudRenderCallback;
-import net.fabricmc.fabric.api.client.rendering.v1.WorldRenderEvents;
 import net.minecraft.client.option.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import org.lwjgl.glfw.GLFW;
@@ -33,10 +31,10 @@ public class PhantomClient implements ClientModInitializer {
 
     public static PhantomClient INSTANCE;
 
-    public final EventBus eventBus = new EventBus();
+    public final EventBus eventBus = EventBus.INSTANCE;
     public final ModuleManager modules = new ModuleManager();
-    public final ConfigManager config = new ConfigManager();
     public final FriendManager friends = new FriendManager();
+    public final ConfigManager config = new ConfigManager(modules, friends);
     public final MacroManager macros = new MacroManager();
     public final HudManager hud = new HudManager();
     public final IntegrationManager integrations = new IntegrationManager();
@@ -64,14 +62,6 @@ public class PhantomClient implements ClientModInitializer {
             if (openGuiKey.wasPressed() && mc.currentScreen == null) {
                 mc.setScreen(new ClickGui());
             }
-        });
-
-        // Register WorldRenderEvents.AFTER_ENTITIES → RenderWorldEvent
-        WorldRenderEvents.AFTER_ENTITIES.register(context -> {
-            float tickDelta = context.tickCounter().getTickDelta(true);
-            PhantomClient.INSTANCE.eventBus.post(
-                    new RenderWorldEvent(context.matrices(), tickDelta, context.camera())
-            );
         });
 
         // Register HudRenderCallback → RenderHudEvent

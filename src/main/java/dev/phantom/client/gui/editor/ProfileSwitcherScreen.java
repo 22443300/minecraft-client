@@ -56,7 +56,6 @@ public class ProfileSwitcherScreen extends Screen {
     // Screen lifecycle
     // -------------------------------------------------------------------------
 
-    @Override
     public boolean isPauseScreen() {
         return false;
     }

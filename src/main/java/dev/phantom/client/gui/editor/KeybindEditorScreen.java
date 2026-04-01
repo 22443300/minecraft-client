@@ -65,7 +65,6 @@ public class KeybindEditorScreen extends Screen {
     // Screen lifecycle
     // -------------------------------------------------------------------------
 
-    @Override
     public boolean isPauseScreen() {
         return false;
     }

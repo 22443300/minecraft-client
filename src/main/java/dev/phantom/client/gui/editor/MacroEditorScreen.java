@@ -442,7 +442,7 @@ public class MacroEditorScreen extends Screen {
     // ──────────────────────────────────────────────────────────────────────
 
     private void newMacro() {
-        Macro macro = new Macro("Macro " + (macroManager.getMacros().size() + 1), "", -1);
+        Macro macro = new Macro("Macro " + (macroManager.getMacros().size() + 1), "");
         macroManager.addMacro(macro);
         selectMacro(macro);
     }
@@ -486,7 +486,6 @@ public class MacroEditorScreen extends Screen {
         capturingKeybind = 0; // 0 = waiting for next key press
     }
 
-    @Override
     public boolean isPauseScreen() {
         return false;
     }

@@ -31,7 +31,7 @@ public class ConfigManager {
 
     private void saveFriends() {
         try {
-            java.nio.file.Path friendsFile = ProfileManager.PROFILES_DIR
+            java.nio.file.Path friendsFile = ProfileManager.getProfilesRoot()
                 .resolve(ProfileManager.currentProfile)
                 .resolve("friends.json");
             java.nio.file.Files.createDirectories(friendsFile.getParent());
@@ -42,7 +42,7 @@ public class ConfigManager {
     }
 
     private void loadFriends() {
-        java.nio.file.Path friendsFile = ProfileManager.PROFILES_DIR
+        java.nio.file.Path friendsFile = ProfileManager.getProfilesRoot()
             .resolve(ProfileManager.currentProfile)
             .resolve("friends.json");
         if (java.nio.file.Files.exists(friendsFile)) {

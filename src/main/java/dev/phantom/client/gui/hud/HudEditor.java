@@ -37,7 +37,6 @@ public class HudEditor extends Screen {
     // Screen contract
     // -------------------------------------------------------------------------
 
-    @Override
     public boolean isPauseScreen() {
         return false;
     }

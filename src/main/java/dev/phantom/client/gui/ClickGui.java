@@ -86,7 +86,6 @@ public class ClickGui extends Screen {
     // Screen lifecycle
     // -------------------------------------------------------------------------
 
-    @Override
     public boolean isPauseScreen() {
         return false;
     }
@@ -99,7 +98,6 @@ public class ClickGui extends Screen {
     @Override
     protected void init() {
         super.init();
-        clearWidgets();
 
         int fieldX = SIDEBAR_WIDTH + PADDING;
         int fieldY = (TOP_BAR_HEIGHT - 14) / 2;
