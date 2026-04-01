@@ -67,12 +67,10 @@ public class PhantomClient implements ClientModInitializer {
         });
 
         // Register WorldRenderEvents.AFTER_ENTITIES → RenderWorldEvent
-        // WorldRenderContext provides matrixStack(), camera(), and tickCounter().
-        // We pass tickCounter().getTickDelta(true) as the float tickDelta.
         WorldRenderEvents.AFTER_ENTITIES.register(context -> {
             float tickDelta = context.tickCounter().getTickDelta(true);
             PhantomClient.INSTANCE.eventBus.post(
-                    new RenderWorldEvent(context.matrixStack(), tickDelta, context.camera())
+                    new RenderWorldEvent(context.matrices(), tickDelta, context.camera())
             );
         });
 
