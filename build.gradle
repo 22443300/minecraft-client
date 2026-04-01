@@ -12,14 +12,6 @@ base {
 
 repositories {
     maven { url 'https://maven.fabricmc.net/' }
-    maven {
-        name = 'TerraformersMC'
-        url  = 'https://maven.terraformersmc.com/releases'
-    }
-    maven {
-        name = 'Masa'
-        url  = 'https://masa.dy.fi/maven'
-    }
 }
 
 loom {
@@ -37,10 +29,8 @@ dependencies {
     // Bundle Gson (included in MC but explicitly bundled for shade safety)
     include implementation('com.google.code.gson:gson:2.10.1')
 
-    // Optional integrations - compileOnly so mod works without them at runtime
-    compileOnly 'com.sk89q.worldedit:worldedit-fabric-mc1.21.1:7.3.0'
-    modCompileOnly("fi.dy.masa.litematica:litematica-fabric-mc1.21.1:0.21.0") { transitive = false }
-    modCompileOnly("fi.dy.masa.malilib:malilib-fabric-mc1.21.1:0.21.0") { transitive = false }
+    // Note: Litematica/MaLiLib integration uses Class.forName() at runtime only —
+    // no compile-time dependency needed.
 }
 
 processResources {
