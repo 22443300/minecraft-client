@@ -2,7 +2,7 @@ package dev.phantom.client.mixin;
 
 import dev.phantom.client.PhantomClient;
 import dev.phantom.client.core.module.Module;
-import net.minecraft.block.Block;
+import net.minecraft.block.AbstractBlock;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.util.math.BlockPos;
@@ -12,7 +12,7 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(Block.class)
+@Mixin(AbstractBlock.class)
 public class BlockMixin {
 
     /**
@@ -24,8 +24,8 @@ public class BlockMixin {
      *
      * InstaBreak takes priority over SpeedMine if both are somehow active.
      */
-    @Inject(method = "calcBlockBreakingDelta",
-            at = @At("RETURN"), cancellable = true)
+    @Inject(method = "calcBlockBreakingDelta(Lnet/minecraft/block/BlockState;Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/world/BlockView;Lnet/minecraft/util/math/BlockPos;)F",
+            at = @At("RETURN"), cancellable = true, require = 0)
     private void onCalcBlockBreakingDelta(BlockState state, PlayerEntity player,
                                           BlockView world, BlockPos pos,
                                           CallbackInfoReturnable<Float> cir) {

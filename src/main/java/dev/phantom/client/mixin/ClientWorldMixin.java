@@ -31,7 +31,7 @@ public class ClientWorldMixin {
      * @param cir return-value callback; its value is replaced when the module
      *            is enabled and has a valid time setting
      */
-    @Inject(method = "getTimeOfDay", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getTimeOfDay()J", at = @At("RETURN"), cancellable = true, require = 0)
     private void onGetTimeOfDay(CallbackInfoReturnable<Long> cir) {
         PhantomClient client = PhantomClient.INSTANCE;
         if (client == null) return;
@@ -57,7 +57,7 @@ public class ClientWorldMixin {
      * @param cir   return-value callback; replaced when WeatherChanger is
      *              active and configured to show clear weather
      */
-    @Inject(method = "getRainGradient", at = @At("RETURN"), cancellable = true)
+    @Inject(method = "getRainGradient(F)F", at = @At("RETURN"), cancellable = true, require = 0)
     private void onGetRainGradient(float delta, CallbackInfoReturnable<Float> cir) {
         PhantomClient client = PhantomClient.INSTANCE;
         if (client == null) return;

@@ -27,7 +27,7 @@ public class MinecraftClientMixin {
      * Fires ConnectEvent.Disconnect when the client disconnects from a server.
      * This covers the case where disconnect() is called directly on MinecraftClient.
      */
-    @Inject(method = "disconnect()V", at = @At("HEAD"))
+    @Inject(method = "disconnect()V", at = @At("HEAD"), require = 0)
     private void onDisconnect(CallbackInfo ci) {
         PhantomClient client = PhantomClient.INSTANCE;
         if (client == null) return;

@@ -22,7 +22,7 @@ public class ClientPlayerEntityMixin {
      * Also handles NoClip: if that module is enabled the method is cancelled
      * entirely so vanilla collision-based movement is skipped.
      */
-    @Inject(method = "travel", at = @At("HEAD"), cancellable = true)
+    @Inject(method = "travel(Lnet/minecraft/util/math/Vec3d;)V", at = @At("HEAD"), cancellable = true, require = 0)
     private void onTravel(Vec3d movementInput, CallbackInfo ci) {
         PhantomClient client = PhantomClient.INSTANCE;
         if (client == null) return;
